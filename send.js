@@ -54,7 +54,7 @@ async function publish(){
     form.append('file', fs.createReadStream(filename))
     
     var response = await axios({
-		     method: 'post',
+         method: 'post',
          url: urlWithSignature,
          data: form,
          headers: form.getHeaders()
