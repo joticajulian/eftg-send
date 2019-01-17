@@ -1,0 +1,19 @@
+{
+  "name": "eftg-send",
+  "version": "1.0.0",
+  "description": "Simple script to publish new reports",
+  "main": "send.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "eftg",
+    "dsteem"
+  ],
+  "author": "Julian Gonzalez",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "eftg-dsteem": "^1.0.1"
+  }
+}
