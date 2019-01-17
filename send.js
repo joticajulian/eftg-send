@@ -8,12 +8,11 @@ const IMAGE_HOSTER = 'https://cdn.blkcc.xyz'
 const RPC_NODE = 'https://api.blkcc.xyz'
 
 // Authentication
-const username = 'jga'
-const password = '5KC1Ab4UxGE4GyXFcx4xwExDCJf8Jq3LujjcBsmFMYp5Cx4VfwK'
+const username = 'your username'
+const password = 'your posting key'
 
 // File to upload
-const filename = 'SteemWhitePaper.pdf'
-const filepath = '../'+filename
+const filename = '../SteemWhitePaper.pdf'
 
 // Metadata
 const issuer_name       = 'Post Telecom PSF S.A.'
@@ -40,7 +39,7 @@ async function publish(){
 
   try{
     // Load and sign file
-    const data = fs.readFileSync(filepath)
+    const data = fs.readFileSync(filename)
 
     const privKey = dsteem.PrivateKey.fromString(password)
     const imageHash = crypto.createHash('sha256')
@@ -49,16 +48,20 @@ async function publish(){
       .digest()
     const signature = privKey.sign(imageHash).toString()
     const urlWithSignature = `${ IMAGE_HOSTER }/${ username }/${ signature }`
-    console.log('urlWithSignature:\n'+urlWithSignature+'\n')
-
+    
     // Upload file
     let form = new FormData()
-    form.append('pdf', data)
-    //var response = await axios.post(urlWithSignature,form)
-    //console.log(JSON.stringify(response))
-    //const pdfUrl = response.data.url;
-    const pdfUrl = 'https://cdn.blkcc.xyz/DQmNZBTmskcoWYcWr98jEHKARkf8hpkAJMEfuDyvBngsSsD/team-ec.pdf'
-
+    form.append('file', fs.createReadStream(filename))
+    
+    var response = await axios({
+		     method: 'post',
+         url: urlWithSignature,
+         data: form,
+         headers: form.getHeaders()
+       })
+           
+    const pdfUrl = response.data.url;
+    
     // Definition of content
     const body = '[[pdf link]](' + pdfUrl + ')'
 
@@ -92,16 +95,13 @@ async function publish(){
       title: title
     }
 
-    console.log('post')
-    console.log(post)
-
     // Broadcast to the blockchain
     const responsePost = await client.broadcast.comment(post, privKey);
-
     console.log('New report published!!')
-    console.log(responsePost)    
+    console.log(`permlink: @${username}/${permlink}`)
+    console.log(`link pdf: ${pdfUrl}`)
   }catch(error){
-    console.log(error)    
+    console.log(error)
   }
 }
 
