@@ -3,16 +3,10 @@ const crypto = require('crypto')
 const axios = require('axios')
 const FormData = require('form-data')
 const fs = require('fs')
-
-const IMAGE_HOSTER = 'https://cdn.blkcc.xyz'
-const RPC_NODE = 'https://api.blkcc.xyz'
-
-// Authentication
-const username = 'your username'
-const password = 'your posting key'
+const config = require('./config.js')
 
 // File to upload
-const filename = '../SteemWhitePaper.pdf'
+const filename = '../POST_RI2017.pdf'
 
 // Metadata
 const issuer_name       = 'Post Telecom PSF S.A.'
@@ -20,10 +14,10 @@ const home_member_state = 'LU'
 const identifier_id     = 4 //ISIN. Check IDs at https://cdn.blkcc.xyz/identifier.json
 const identifier_value  = '549300HODTJUIOVE3C26'
 const subclass          = 3 //Annual Financial report. Check classes and subclasses at https://cdn.blkcc.xyz/class_subclass_tree.json
-const disclosure_date   = '2019-01-17T12:00:00' //format yyyy-mm-ddTHH:mm:ss
+const disclosure_date   = '2017-12-31T12:00:00' //format yyyy-mm-ddTHH:mm:ss
 const document_language = 'en' // https://cdn.blkcc.xyz/lang.json
-const title             = 'Post - Annual Financial Report 2018'
-const financial_year    = '2018'
+const title             = 'Groupe Post Luxembourg Rapport Integre 2017'
+const financial_year    = '2017'
 const tags              = [
                             'annual-financreport', // https://cdn.blkcc.xyz/class_subclass_tree.json
                             issuer_name,
@@ -32,7 +26,7 @@ const tags              = [
                           ]
 
 // Connection with the RPC node
-const client = new dsteem.Client(RPC_NODE)
+const client = new dsteem.Client(config.RPC_NODE)
 
 // Function to publish new reports in the blockchain
 async function publish(){
@@ -41,13 +35,13 @@ async function publish(){
     // Load and sign file
     const data = fs.readFileSync(filename)
 
-    const privKey = dsteem.PrivateKey.fromString(password)
+    const privKey = dsteem.PrivateKey.fromString(config.password)
     const imageHash = crypto.createHash('sha256')
       .update('ImageSigningChallenge')
       .update(data)
       .digest()
     const signature = privKey.sign(imageHash).toString()
-    const urlWithSignature = `${ IMAGE_HOSTER }/${ username }/${ signature }`
+    const urlWithSignature = `${ config.IMAGE_HOSTER }/${ config.username }/${ signature }`
     
     // Upload file
     let form = new FormData()
@@ -86,7 +80,7 @@ async function publish(){
     permlink = Math.random().toString(36).substring(7) + '-' + permlink
 
     const post = {
-      author: username,
+      author: config.username,
       body: body,
       json_metadata: JSON.stringify(json_metadata),
       parent_author: '',
@@ -98,7 +92,7 @@ async function publish(){
     // Broadcast to the blockchain
     const responsePost = await client.broadcast.comment(post, privKey);
     console.log('New report published!!')
-    console.log(`permlink: @${username}/${permlink}`)
+    console.log(`permlink: @${config.username}/${permlink}`)
     console.log(`link pdf: ${pdfUrl}`)
   }catch(error){
     console.log(error)
