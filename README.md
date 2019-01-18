@@ -16,7 +16,7 @@ To check if you have npm installed, run this command
 npm -v
 ```
 
-Download this repository and run
+Download this repository (eftg-send) and run
 ```
 npm install
 ```
